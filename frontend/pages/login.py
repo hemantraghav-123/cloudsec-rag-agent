@@ -273,39 +273,45 @@ with right:
     )
 
     with st.form("login_form", clear_on_submit=False):
-        email = st.text_input("Email", placeholder="you@example.com")
-        password = st.text_input("Password", type="password", placeholder="Enter your password")
-        submitted = st.form_submit_button("Log in")
+      email = st.text_input("Email", placeholder="you@example.com", key="login_email")
+      password = st.text_input(
+        "Password",
+        type="default",
+        placeholder="Enter your password",
+        key="login_password",
+        help="Supports letters, numbers, and special characters.",
+      )
+      submitted = st.form_submit_button("Log in")
 
     if submitted:
-      if not email or not password:
-        st.error("Enter both email and password.")
-      else:
-        try:
-          data = login_user(email.strip().lower(), password)
-        except requests.HTTPError as exc:
-          message = "Login failed."
-          if exc.response is not None:
-            try:
-              message = exc.response.json().get("detail", message)
-            except Exception:
-              pass
-          st.error(message)
-        except requests.RequestException as exc:
-          st.error(f"Could not reach the backend: {exc}")
+        if not email or not password:
+            st.error("Enter both email and password.")
         else:
-          st.session_state.auth_token = data.get("access_token")
-          st.session_state.user_email = data.get("user_email", email.strip().lower())
-
-          # Cookie persistence should not block successful login.
-          if st.session_state.auth_token and st.session_state.user_email:
             try:
-              persist_auth_to_cookie(st.session_state.auth_token, st.session_state.user_email)
-            except Exception:
-              pass
+                data = login_user(email.strip().lower(), password)
+            except requests.HTTPError as exc:
+                message = "Login failed."
+                if exc.response is not None:
+                    try:
+                        message = exc.response.json().get("detail", message)
+                    except Exception:
+                        pass
+                st.error(message)
+            except requests.RequestException as exc:
+                st.error(f"Could not reach the backend: {exc}")
+            else:
+                st.session_state.auth_token = data.get("access_token")
+                st.session_state.user_email = data.get("user_email", email.strip().lower())
 
-          st.success("Logged in successfully.")
-          st.switch_page("streamlit_app.py")
+                # Cookie persistence should not block successful login.
+                if st.session_state.auth_token and st.session_state.user_email:
+                    try:
+                        persist_auth_to_cookie(st.session_state.auth_token, st.session_state.user_email)
+                    except Exception:
+                        pass
+
+                st.success("Logged in successfully.")
+                st.switch_page("streamlit_app.py")
 
     st.markdown('<div class="switch-link">No account yet?</div>', unsafe_allow_html=True)
     if st.button("Create one", use_container_width=True):

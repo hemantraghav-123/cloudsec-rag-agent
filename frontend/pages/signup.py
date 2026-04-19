@@ -272,9 +272,21 @@ with right:
     )
 
     with st.form("signup_form", clear_on_submit=False):
-        email = st.text_input("Email", placeholder="you@example.com")
-        password = st.text_input("Password", type="password", placeholder="Create a strong password")
-        confirm_password = st.text_input("Confirm password", type="password", placeholder="Repeat your password")
+        email = st.text_input("Email", placeholder="you@example.com", key="signup_email")
+        password = st.text_input(
+            "Password",
+        type="default",
+            placeholder="Create a strong password",
+            key="signup_password",
+            help="Supports letters, numbers, and special characters.",
+        )
+        confirm_password = st.text_input(
+            "Confirm password",
+        type="default",
+            placeholder="Repeat your password",
+            key="signup_confirm_password",
+            help="Supports letters, numbers, and special characters.",
+        )
         submitted = st.form_submit_button("Sign up")
 
     if submitted:
